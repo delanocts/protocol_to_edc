@@ -1,0 +1,48 @@
+# Domain manifest. The orchestrator, the web UI and the assembler all read this
+# file; none of them hardcodes anything about this domain. Adding a new domain
+# means adding a manifest here and a package under
+# src/protocol_to_edc/domains/<id>/ -- nothing else changes.
+
+id: study
+order: 1
+label: "Study"
+description: >-
+  Study identity: titles, protocol identifiers, sponsor, therapeutic area.
+
+usdm:
+  version_range: ">=4.0.0"
+  produces:
+    - Study
+    - StudyVersion
+    - StudyTitle
+    - StudyIdentifier
+    - Organization
+  # Where this domain's fragment is placed in the assembled document.
+  attaches_to: "studyVersion.titles"
+
+# Domains whose output this one needs as context. Everything with the same
+# dependencies runs concurrently.
+depends_on: []
+
+skill:
+  file: "src/protocol_to_edc/domains/study/skill.md"
+  # Sections sliced out of USDM-IG.pdf and loaded into this agent's prompt.
+  ig_sections:
+    - Study
+    - StudyVersion
+    - StudyTitle
+    - StudyIdentifier
+  # Codelists offered to the agent as permitted values.
+  ct_codelists:
+    - StudyTitle.type
+    - Organization.type
+
+# Hints about where in a protocol this information usually lives.
+protocol_hints:
+    - Title page and protocol header
+    - Synopsis: title, protocol number, sponsor
+    - Registry identifiers (NCT, EudraCT, jRCT) on the cover or synopsis
+
+llm:
+  model: null      # null inherits config/default.yaml
+  effort: null

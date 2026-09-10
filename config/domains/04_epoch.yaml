@@ -1,0 +1,42 @@
+# Domain manifest. The orchestrator, the web UI and the assembler all read this
+# file; none of them hardcodes anything about this domain. Adding a new domain
+# means adding a manifest here and a package under
+# src/protocol_to_edc/domains/<id>/ -- nothing else changes.
+
+id: epoch
+order: 4
+label: "Epoch"
+description: >-
+  Study epochs or periods: screening, treatment, follow-up, and their order.
+
+usdm:
+  version_range: ">=4.0.0"
+  produces:
+    - StudyEpoch
+  # Where this domain's fragment is placed in the assembled document.
+  attaches_to: "studyDesign.epochs"
+
+# Domains whose output this one needs as context. Everything with the same
+# dependencies runs concurrently.
+depends_on: []
+
+skill:
+  file: "src/protocol_to_edc/domains/epoch/skill.md"
+  # Sections sliced out of USDM-IG.pdf and loaded into this agent's prompt.
+  ig_sections:
+    - StudyEpoch
+    - StudyCell
+    - ScheduleTimeline
+  # Codelists offered to the agent as permitted values.
+  ct_codelists:
+    - StudyEpoch.type
+
+# Hints about where in a protocol this information usually lives.
+protocol_hints:
+    - Study design section and study schematic
+    - Schedule of activities column groupings
+    - Section headings such as Screening, Treatment Period, Follow-up
+
+llm:
+  model: null      # null inherits config/default.yaml
+  effort: null

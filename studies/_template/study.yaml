@@ -1,0 +1,34 @@
+# Per-study configuration. Copy the whole _template folder to studies/<STUDY_ID>/.
+# Everything here overrides config/default.yaml for THIS study only.
+# NOTHING SECRET -- the Anthropic API key lives in the .env at the project root.
+
+study:
+  id: "STUDY-ID-HERE"            # folder name, e.g. H2Q-MC-LZZT
+  protocol_number: ""
+  protocol_version: ""
+  protocol_date: ""
+  title: ""
+  sponsor: ""
+  phase: ""
+  therapeutic_area: ""
+
+input:
+  protocol_pdf: "input/protocol/<filename>.pdf"
+  reference_files: []            # anything in input/reference/ worth giving the agents
+
+# ---- Overrides. Delete any key to inherit the global default. ---------------
+usdm:
+  version: "4.0.0"
+  output_mode: "partial"
+
+llm:
+  model: null                    # null = inherit
+  effort: null
+
+# Turn individual domain agents off for this study. Omitted = inherit global.
+domains:
+  # study_intervention: {enabled: false}
+  # activity_schedule:  {enabled: false}
+
+qc:
+  min_confidence: 0.80

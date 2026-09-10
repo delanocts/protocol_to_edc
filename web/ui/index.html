@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocol to USDM</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Protocol&nbsp;&rarr;&nbsp;USDM</h1>
+    <p class="tagline">Clinical protocol PDF to a CDISC USDM v4 study definition.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="panel" id="panel-study">
+    <h2><span class="step">1</span> Study</h2>
+    <div class="row">
+      <label for="study-select">Study</label>
+      <select id="study-select"></select>
+      <button id="refresh-studies" class="ghost" type="button">Reload</button>
+    </div>
+    <div id="study-detail" class="detail"></div>
+
+    <details class="sub">
+      <summary>Create a study or upload a protocol</summary>
+      <div class="row">
+        <label for="new-study-id">New study id</label>
+        <input id="new-study-id" type="text" placeholder="e.g. I8R-JE-IGBJ" autocomplete="off">
+        <button id="create-study" class="ghost" type="button">Create</button>
+      </div>
+      <p class="hint">ASCII letters, digits, dot, underscore and hyphen only. A
+        non-breaking hyphen pasted from a document will be rejected here rather
+        than failing later.</p>
+      <div class="row">
+        <label for="protocol-file">Protocol PDF</label>
+        <input id="protocol-file" type="file" accept="application/pdf">
+        <button id="upload-protocol" class="ghost" type="button">Upload</button>
+      </div>
+      <p class="hint">Text-layer PDFs only &mdash; scanned documents need OCR,
+        which is out of scope.</p>
+      <div id="upload-status" class="detail"></div>
+    </details>
+  </section>
+
+  <section class="panel" id="panel-config">
+    <h2><span class="step">2</span> Configure</h2>
+    <div class="grid">
+      <div class="field">
+        <label for="usdm-version">USDM version</label>
+        <select id="usdm-version"></select>
+      </div>
+      <div class="field">
+        <label for="output-mode">Output mode</label>
+        <select id="output-mode">
+          <option value="partial">partial &mdash; emit what exists, report gaps</option>
+          <option value="stub">stub &mdash; fill gaps so it validates</option>
+          <option value="strict">strict &mdash; refuse if anything required is missing</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="effort">Effort</label>
+        <select id="effort">
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high" selected>high</option>
+          <option value="xhigh">xhigh</option>
+          <option value="max">max</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="use-cache">Reuse cached responses</label>
+        <select id="use-cache">
+          <option value="yes" selected>yes &mdash; skip domains whose inputs are unchanged</option>
+          <option value="no">no &mdash; call the API for every domain</option>
+        </select>
+      </div>
+    </div>
+
+    <h3>Domain agents</h3>
+    <p class="hint">Turn off any domain whose data you do not need. A disabled
+      agent makes no API call and costs nothing. Required USDM content it would
+      have produced is reported in the gap report, or stubbed in stub mode.</p>
+    <div id="domain-list" class="domains"></div>
+    <div class="row">
+      <button id="select-all" class="ghost" type="button">All</button>
+      <button id="select-none" class="ghost" type="button">None</button>
+      <span id="level-note" class="hint inline"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-run">
+    <h2><span class="step">3</span> Run</h2>
+    <div class="row">
+      <button id="start-run" type="button" class="primary">Build USDM</button>
+      <span id="run-state" class="badge"></span>
+    </div>
+    <div id="progress" class="progress"></div>
+    <div id="log" class="log" hidden></div>
+  </section>
+
+  <section class="panel" id="panel-results" hidden>
+    <h2><span class="step">4</span> Results</h2>
+    <div id="result-summary" class="detail"></div>
+    <div class="tabs" id="result-tabs">
+      <button class="tab active" data-view="gap" type="button">Gap report</button>
+      <button class="tab" data-view="usdm" type="button">USDM document</button>
+      <button class="tab" data-view="validation" type="button">Validation</button>
+      <button class="tab" data-view="fragments" type="button">Fragments</button>
+    </div>
+    <div id="result-body" class="result-body"></div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p>Runs locally. The only outbound call is to the Anthropic API, using the key
+     in your <code>.env</code>. Equivalent command line:
+     <code id="cli-hint">python run_build.py &lt;STUDY&gt;</code></p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

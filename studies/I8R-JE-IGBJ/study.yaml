@@ -1,0 +1,34 @@
+# Per-study configuration. Overrides config/default.yaml for THIS study only.
+# NOTHING SECRET -- the Anthropic API key lives in the .env at the project root.
+# Metadata below was read off the protocol cover page; correct anything that is wrong.
+
+study:
+  id: "I8R-JE-IGBJ"
+  protocol_number: "I8R-JE-IGBJ"
+  protocol_version: "Amendment (a)"
+  protocol_date: "2017-12-05"          # cover page: Approval Date 05-Dec-2017
+  registry_id: "NCT03421379"
+  title: >-
+    A Phase 3 Study of Nasal Glucagon (LY900018) Compared to Intramuscular Glucagon
+    for Treatment of Insulin-induced Hypoglycemia in Japanese Patients with Diabetes Mellitus
+  sponsor: "Eli Lilly Japan K.K."
+  phase: "Phase 3"
+  therapeutic_area: "Diabetes Mellitus / severe hypoglycaemia"
+  intervention: "Nasal Glucagon (LY900018)"
+
+input:
+  protocol_pdf: "input/protocol/EliLilly_NCT03421379_Diabetes.pdf"
+  reference_files: []
+
+usdm:
+  version: "4.0.0"
+  output_mode: "partial"
+
+llm:
+  model: null                    # null = inherit config/default.yaml (claude-opus-5)
+  effort: null
+
+domains: {}                      # all 8 enabled; add e.g. epoch: {enabled: false} to skip
+
+qc:
+  min_confidence: 0.80

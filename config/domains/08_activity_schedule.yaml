@@ -1,0 +1,56 @@
+# Domain manifest. The orchestrator, the web UI and the assembler all read this
+# file; none of them hardcodes anything about this domain. Adding a new domain
+# means adding a manifest here and a package under
+# src/protocol_to_edc/domains/<id>/ -- nothing else changes.
+
+id: activity_schedule
+order: 8
+label: "Activity & Scheduled Activity Instance"
+description: >-
+  Schedule of activities: encounters, the activities performed at each, and the timeline that orders them.
+
+usdm:
+  version_range: ">=4.0.0"
+  produces:
+    - Activity
+    - Encounter
+    - ScheduleTimeline
+    - ScheduledActivityInstance
+    - Timing
+  # Where this domain's fragment is placed in the assembled document.
+  attaches_to: "studyDesign.activities"
+
+# Domains whose output this one needs as context. Everything with the same
+# dependencies runs concurrently.
+depends_on:
+  - epoch
+  - study_arm
+
+skill:
+  file: "src/protocol_to_edc/domains/activity_schedule/skill.md"
+  # Sections sliced out of USDM-IG.pdf and loaded into this agent's prompt.
+  ig_sections:
+    - Activity
+    - Encounter
+    - ScheduleTimeline
+    - ScheduledActivityInstance
+    - Timing
+    - ScheduleTimelineExit
+  # Codelists offered to the agent as permitted values.
+  ct_codelists:
+    - Encounter.type
+    - Encounter.contactModes
+    - Encounter.environmentalSettings
+    - Timing.type
+    - Timing.relativeToFrom
+
+# Hints about where in a protocol this information usually lives.
+protocol_hints:
+    - The Schedule of Activities / Schedule of Assessments / Study Flow Chart table
+    - Footnotes beneath that table -- they carry the conditions and windows
+    - Visit window definitions in the study conduct section
+    - Sections describing individual assessments
+
+llm:
+  model: null      # null inherits config/default.yaml
+  effort: null

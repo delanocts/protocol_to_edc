@@ -1,0 +1,37 @@
+# =============================================================================
+# Global defaults. A study may override any of this in studies/<ID>/study.yaml,
+# and the web UI edits the same keys. No secrets here -- the API key is in .env.
+# =============================================================================
+
+usdm:
+  version: "4.0.0"              # selectable in the UI; resources/usdm/<major>/ must exist
+  output_mode: "partial"        # partial | strict | stub   (see docs)
+  validate: true                # JSON-schema validation against USDM_API.json
+  core_rules: true              # second pass against USDM_CORE_Rules.xlsx
+
+llm:
+  model: "claude-opus-5"
+  effort: "high"                # low | medium | high | xhigh | max
+  max_concurrency: 4            # domain agents run in parallel up to this
+  cache_protocol: true          # prompt-cache the protocol PDF across all agents
+  reuse_cached_runs: true       # skip an agent whose inputs are unchanged
+
+# -----------------------------------------------------------------------------
+# Domain agents. `enabled: false` skips that agent entirely -- no API call, no
+# cost, and its USDM fragment is omitted (or stubbed, per usdm.output_mode).
+# Adding a 9th domain = drop a package in src/protocol_to_edc/domains/ and a
+# manifest in config/domains/. Nothing here or in the orchestrator changes shape.
+# -----------------------------------------------------------------------------
+domains:
+  study:                   {enabled: true}   # 1. Study - title, phase, therapeutic area
+  study_design:            {enabled: true}   # 2. StudyDesign - study type, blinding
+  study_arm:               {enabled: true}   # 3. StudyArm
+  epoch:                   {enabled: true}   # 4. Epoch (USDM v4: StudyEpoch)
+  study_intervention:      {enabled: true}   # 5. StudyIntervention - IP, dose
+  study_objective:         {enabled: true}   # 6. Objectives - primary and secondary
+  population_eligibility:  {enabled: true}   # 7. Population and EligibilityCriteria
+  activity_schedule:       {enabled: true}   # 8. Activity and ScheduledActivityInstance
+
+qc:
+  min_confidence: 0.80          # below this -> gap report, flagged for human decision
+  require_citations: true       # every extracted value must carry a protocol page cite

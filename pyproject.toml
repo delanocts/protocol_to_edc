@@ -1,0 +1,37 @@
+[project]
+name = "protocol-to-edc"
+version = "0.1.0"
+description = "Protocol PDF to USDM v4 study definition via a multi-agent Claude pipeline"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.69",
+    "pydantic>=2.9",
+    "pyyaml>=6.0",
+    "jsonschema>=4.23",
+    "pypdf>=5.1",
+    # The USDM Implementation Guide PDF is AES-encrypted; pypdf needs this to read it
+    "cryptography>=3.1",
+    "openpyxl>=3.1",
+    "python-dotenv>=1.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "python-multipart>=0.0.12",
+    "rich>=13.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "pytest-asyncio>=0.24"]
+
+[project.scripts]
+pte = "protocol_to_edc.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
