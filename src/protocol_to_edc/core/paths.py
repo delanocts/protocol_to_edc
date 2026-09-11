@@ -151,9 +151,15 @@ def for_study(study_id: str) -> StudyPaths:
     return StudyPaths(study_id=study_id, root=STUDIES / study_id)
 
 
-@cache
 def list_studies() -> tuple[str, ...]:
-    """Study ids present on disk, excluding the template."""
+    """Study ids present on disk, excluding the template.
+
+    Deliberately not cached. This reads a directory that changes while the
+    process is running -- the web server creates study folders on request -- and
+    memoising it meant a newly created study never appeared in the UI until the
+    server was restarted. The CLI hid the bug, because each command is a fresh
+    process. Listing a directory is cheap; caching it was never worth it.
+    """
     if not STUDIES.is_dir():
         return ()
     return tuple(

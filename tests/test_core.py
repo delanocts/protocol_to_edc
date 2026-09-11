@@ -50,6 +50,25 @@ def test_usdm_resource_dir_accepts_both_version_spellings():
     assert paths.usdm_resource_dir("4.0.0") == paths.usdm_resource_dir("4.x")
 
 
+def test_list_studies_sees_a_folder_created_after_the_first_call(tmp_path, monkeypatch):
+    """A study created while the process is running must appear immediately.
+
+    This was a real bug: `list_studies` was memoised, so the web server answered
+    from a snapshot taken at start-up and a newly created study never showed in
+    the dropdown, however many times the page was reloaded. The CLI hid it,
+    because every command is a fresh process.
+    """
+    monkeypatch.setattr(paths, "STUDIES", tmp_path)
+    assert paths.list_studies() == ()
+
+    (tmp_path / "NEW-STUDY-01").mkdir()
+    assert paths.list_studies() == ("NEW-STUDY-01",)
+
+    (tmp_path / "_template").mkdir()
+    (tmp_path / "NEW-STUDY-02").mkdir()
+    assert paths.list_studies() == ("NEW-STUDY-01", "NEW-STUDY-02")
+
+
 # -- config ----------------------------------------------------------------
 
 

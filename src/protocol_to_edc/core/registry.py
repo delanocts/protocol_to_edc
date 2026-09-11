@@ -163,7 +163,14 @@ def _parse_manifest(path: Path) -> DomainSpec:
 
 @cache
 def load_all() -> tuple[DomainSpec, ...]:
-    """Every domain manifest on disk, in declared order."""
+    """Every domain manifest on disk, in declared order.
+
+    Cached for the life of the process, unlike `paths.list_studies()`. That is a
+    deliberate difference: a study folder appears while the server is running, so
+    caching it hides new studies, whereas a domain is code as well as a manifest
+    and cannot take effect until its package is imported. Adding a ninth domain
+    therefore needs a server restart, which adding a study does not.
+    """
     directory = paths.DOMAIN_MANIFEST_DIR
     if not directory.is_dir():
         raise RegistryError(f"No domain manifest directory at {directory}")
