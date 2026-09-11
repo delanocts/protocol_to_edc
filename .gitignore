@@ -4,19 +4,19 @@
 !.env.example
 
 # Study material: protocols, generated builds, intermediates, logs
-studies/*/input/**
+#studies/*/input/**
 studies/*/work/**
 studies/*/output/**
 studies/*/logs/**
-!studies/*/input/**/PLACE_FILES_HERE.md
-!studies/_template/**
+#!studies/*/input/**/PLACE_FILES_HERE.md
+#studies/_template/**
 
 # Licensed / sponsor-owned shared resources
-resources/**/*.xlsx
-resources/**/*.xls
-resources/**/*.pdf
-resources/**/*.csv
-!resources/**/PLACE_FILES_HERE.md
+#resources/**/*.xlsx
+#resources/**/*.xls
+#resources/**/*.pdf
+#resources/**/*.csv
+#resources/**/PLACE_FILES_HERE.md
 
 # Raw NCI terminology downloads (~14 MB); the derived ct_supplement.json is kept
 resources/usdm/*/_ct_cache/
