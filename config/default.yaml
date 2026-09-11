@@ -7,7 +7,6 @@ usdm:
   version: "4.0.0"              # selectable in the UI; resources/usdm/<major>/ must exist
   output_mode: "partial"        # partial | strict | stub   (see docs)
   validate: true                # JSON-schema validation against USDM_API.json
-  core_rules: true              # second pass against USDM_CORE_Rules.xlsx
 
 llm:
   model: "claude-opus-5"

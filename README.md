@@ -134,9 +134,13 @@ Downloaded into `resources/`, none of it hand-edited:
 | `usdm/v4/USDM_API.json` | [DDF-RA](https://github.com/cdisc-org/DDF-RA) — the schema, authoritative for entity shape |
 | `usdm/v4/USDM_CT.xlsx` | DDF-RA — 25 codelists, plus a prose definition for every attribute |
 | `usdm/v4/ct_supplement.json` | derived: NCI EVS codelists for the attributes the workbook omits |
-| `usdm/v4/USDM_CORE_Rules.xlsx` | DDF-RA — CORE conformance rules |
 | `usdm_ig/USDM-IG.pdf` | DDF-RA — the Implementation Guide |
 | `usdm_ig/sections/*.md` | derived: per-entity excerpts, loaded into the prompts on demand |
+
+CDISC also publishes `USDM_CORE_Rules.xlsx`, the CORE conformance rules. It is
+not kept here because CORE checking is not implemented — validation is
+JSON-schema plus referential integrity. Adding it would be a third layer in
+`usdm/validator.py`.
 
 Regenerate the derived files:
 
