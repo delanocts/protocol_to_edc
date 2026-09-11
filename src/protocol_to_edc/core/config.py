@@ -37,7 +37,6 @@ class UsdmConfig(BaseModel):
     # `validate` is the YAML key; the attribute is renamed so it does not shadow
     # pydantic's own BaseModel.validate.
     validate_schema: bool = Field(default=True, alias="validate")
-    core_rules: bool = True
 
     @field_validator("version")
     @classmethod
