@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocol to USDM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+/* Baseline reset. On claude.ai the artifact host supplies this; a file opened
+   straight from disk does not get it, so it is written out here. */
+html { color-scheme: light dark; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<style>
+:root {
+  --ground:      #f6f8f7;
+  --panel:       #ffffff;
+  --panel-sunk:  #eef2f1;
+  --ink:         #14201e;
+  --ink-soft:    #566764;
+  --rule:        #dbe4e2;
+  --rule-strong: #c3d1ce;
+  --accent:      #0d6e63;
+  --accent-soft: #e2efed;
+  --ok:          #2c7a52;
+  --warn:        #8d5d0d;
+  --crit:        #a33127;
+
+  --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --sans:  "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:  "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  --measure: 68ch;
+}
+
+:root:not([data-theme="light"]) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:      #101614;
+    --panel:       #172020;
+    --panel-sunk:  #1d2725;
+    --ink:         #e3eae8;
+    --ink-soft:    #92a4a1;
+    --rule:        #26322f;
+    --rule-strong: #33423f;
+    --accent:      #4fb8a8;
+    --accent-soft: #16302c;
+    --ok:          #5cb082;
+    --warn:        #d0a04f;
+    --crit:        #e08274;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:      #101614;
+  --panel:       #172020;
+  --panel-sunk:  #1d2725;
+  --ink:         #e3eae8;
+  --ink-soft:    #92a4a1;
+  --rule:        #26322f;
+  --rule-strong: #33423f;
+  --accent:      #4fb8a8;
+  --accent-soft: #16302c;
+  --ok:          #5cb082;
+  --warn:        #d0a04f;
+  --crit:        #e08274;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-inline: 20px;
+  padding-block: 0 72px;
+}
+
+.prose { max-width: var(--measure); }
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  border-bottom: 1px solid var(--rule-strong);
+  padding-block: 48px 30px;
+  margin-bottom: 42px;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(34px, 6vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin: 0 0 16px;
+  text-wrap: balance;
+}
+.standfirst {
+  font-size: clamp(17px, 2.2vw, 19px);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* ---------- observed-run strip ---------- */
+
+.observed {
+  margin-top: 30px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--panel);
+}
+.observed-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.observed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+}
+.obs {
+  padding: 14px 16px 16px;
+  border-right: 1px solid var(--rule);
+}
+.obs:last-child { border-right: 0; }
+.obs b {
+  display: block;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.obs span {
+  display: block;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  margin-top: 3px;
+}
+
+/* ---------- sections ---------- */
+
+section { margin-block: 58px; scroll-margin-top: 20px; }
+
+h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(23px, 3.4vw, 29px);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  text-wrap: balance;
+}
+h2 .num {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.62em;
+  color: var(--accent);
+  margin-right: 12px;
+  letter-spacing: 0;
+}
+h3 {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 17px;
+  margin: 32px 0 8px;
+  letter-spacing: -0.005em;
+}
+h4 {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 26px 0 8px;
+}
+p { margin: 0 0 14px; }
+.lede { color: var(--ink-soft); margin-top: 14px; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.875em;
+  background: var(--panel-sunk);
+  padding: 0.1em 0.36em;
+  border-radius: 2px;
+}
+
+/* ---------- steps ---------- */
+
+.steps { display: grid; gap: 20px; margin-top: 24px; counter-reset: step; }
+.step {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.step::before {
+  counter-increment: step;
+  content: counter(step);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 26px;
+  text-align: center;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+}
+.step-body { min-width: 0; }
+.step-body > :first-child { margin-top: 0; }
+.step h3 { margin-top: 0; }
+
+/* ---------- code blocks ---------- */
+
+pre {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  background: var(--panel-sunk);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 12px 0;
+  tab-size: 2;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--ink-soft); }
+pre .p { color: var(--accent); }
+
+/* ---------- tables ---------- */
+
+.tablewrap {
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  margin: 20px 0;
+  background: var(--panel);
+}
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
+th, td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+thead th {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--panel-sunk);
+  white-space: nowrap;
+}
+tbody tr:last-child td { border-bottom: 0; }
+td.mono, th.mono { font-family: var(--mono); font-size: 12.5px; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ---------- figures ---------- */
+
+figure { margin: 28px 0; }
+.figframe {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--panel);
+  padding: 20px 18px 8px;
+  overflow-x: auto;
+}
+.figframe svg { display: block; min-width: 720px; max-width: 100%; height: auto; margin: 0 auto; }
+figcaption {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-top: 12px;
+  max-width: 78ch;
+  line-height: 1.5;
+}
+figcaption b { color: var(--ink); font-weight: 600; }
+
+/* diagram primitives */
+.d-box       { fill: var(--panel);      stroke: var(--rule-strong); stroke-width: 1.25; }
+.d-box-sunk  { fill: var(--panel-sunk); stroke: var(--rule-strong); stroke-width: 1.25; }
+.d-box-acc   { fill: var(--accent-soft);stroke: var(--accent);      stroke-width: 1.5; }
+.d-band      { fill: none;              stroke: var(--rule);        stroke-width: 1; stroke-dasharray: 3 4; }
+.d-title     { fill: var(--ink);        font-family: var(--sans); font-size: 13px; font-weight: 600; }
+.d-sub       { fill: var(--ink-soft);   font-family: var(--mono); font-size: 10.5px; }
+.d-band-lab  { fill: var(--ink-soft);   font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.09em; }
+.d-acc-lab   { fill: var(--accent);     font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.09em; }
+.d-edge-lab  { fill: var(--ink-soft);   font-family: var(--mono); font-size: 10.5px; }
+.d-line      { stroke: var(--rule-strong); stroke-width: 1.3; fill: none; }
+.d-line-acc  { stroke: var(--accent);      stroke-width: 1.6; fill: none; }
+.d-arrow     { fill: var(--rule-strong); }
+.d-arrow-acc { fill: var(--accent); }
+
+/* ---------- callouts ---------- */
+
+.note {
+  border-left: 2px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 14px 18px;
+  margin: 20px 0;
+  border-radius: 0 3px 3px 0;
+}
+.note.warn { border-left-color: var(--warn); background: color-mix(in srgb, var(--warn) 9%, transparent); }
+.note.crit { border-left-color: var(--crit); background: color-mix(in srgb, var(--crit) 9%, transparent); }
+.note > :first-child { margin-top: 0; }
+.note > :last-child { margin-bottom: 0; }
+.note strong { font-weight: 600; }
+
+/* ---------- two-lane ---------- */
+
+.lanes { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; margin-top: 24px; }
+.lane {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--panel);
+  padding: 18px 20px 20px;
+  min-width: 0;
+}
+.lane h3 { margin-top: 0; display: flex; align-items: baseline; gap: 10px; }
+.lane h3 .tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: 400;
+}
+.lane pre { background: var(--panel-sunk); }
+
+/* ---------- definition list ---------- */
+
+dl.defs { margin: 20px 0 0; display: grid; gap: 0; }
+dl.defs > div {
+  display: grid;
+  grid-template-columns: minmax(150px, 200px) 1fr;
+  gap: 20px;
+  padding: 13px 0;
+  border-top: 1px solid var(--rule);
+}
+dl.defs > div:last-child { border-bottom: 1px solid var(--rule); }
+dl.defs dt { font-family: var(--mono); font-size: 13px; color: var(--ink); }
+dl.defs dd { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+dl.defs dd strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- file tree ---------- */
+
+.tree {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.9;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+.tree .dim { color: var(--ink-soft); }
+.tree .hl { color: var(--accent); }
+
+footer {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 64px;
+  padding-top: 22px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 620px) {
+  dl.defs > div { grid-template-columns: 1fr; gap: 4px; }
+  .step { grid-template-columns: 24px 1fr; gap: 12px; }
+  .step::before { width: 24px; height: 24px; line-height: 22px; font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<header class="masthead">
+  <p class="eyebrow">Operator guide &middot; CDISC USDM v4.0.0</p>
+  <h1>Protocol to USDM</h1>
+  <p class="standfirst">
+    Eight domain agents read an approved clinical protocol PDF and produce a
+    CDISC USDM v4 study definition, a page-cited gap report, and a per-value
+    provenance trail. It is an accelerator with a reviewer, not an autopilot.
+  </p>
+
+  <div class="observed">
+    <div class="observed-head">One observed run &mdash; protocol I8R-JE-IGBJ, 73 pages, all 8 agents</div>
+    <div class="observed-grid">
+      <div class="obs"><b>0</b><span>schema validation errors</span></div>
+      <div class="obs"><b>313</b><span>USDM objects, 27 entity types</span></div>
+      <div class="obs"><b>91%</b><span>quotes verified against the PDF</span></div>
+      <div class="obs"><b>93%</b><span>prompt-cache hit rate</span></div>
+      <div class="obs"><b>5m 34s</b><span>wall clock, 8 API calls</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ SETUP ============================ -->
+<section id="setup">
+  <h2><span class="num">01</span>Setting up on a new machine</h2>
+  <div class="prose">
+    <p class="lede">
+      Python 3.11 or newer; developed and tested on 3.14.6. Nothing else needs
+      installing &mdash; no database, no Docker, no Node toolchain.
+    </p>
+  </div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Create a virtual environment and install</h3>
+        <pre><code><span class="c"># from the project root</span>
+python -m venv .venv
+
+<span class="c"># Windows</span>
+.venv\Scripts\python -m pip install -e <span class="p">".[dev]"</span>
+
+<span class="c"># macOS / Linux</span>
+.venv/bin/python -m pip install -e <span class="p">".[dev]"</span></code></pre>
+        <p>
+          Installing the project gives you the <code>pte</code> command as well as
+          the libraries. If you would rather not install the package, three
+          requirements files are provided and <code>python run_build.py</code>
+          works without installation.
+        </p>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>File</th><th>Contents</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">requirements.txt</td><td>runtime libraries, minimum versions</td></tr>
+              <tr><td class="mono">requirements-dev.txt</td><td>the above plus <code>pytest</code></td></tr>
+              <tr><td class="mono">requirements-lock.txt</td><td>48 packages pinned to versions known to work</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Supply the API key</h3>
+        <pre><code>cp .env.example .env</code></pre>
+        <p>
+          Then set <code>ANTHROPIC_API_KEY</code> in it. That is the only secret
+          the project has, it lives in one file at the project root, and it is
+          gitignored. Every study on the machine shares it.
+        </p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Confirm the install</h3>
+        <pre><code>.venv\Scripts\python -m pytest -q      <span class="c"># 99 passed, 1 skipped</span>
+.venv\Scripts\pte domains              <span class="c"># lists 8 agents, 2 levels</span></code></pre>
+        <p>
+          The test suite runs without an API key and without network access. If
+          it passes, the schema, the terminology and all eight domain modules
+          load correctly.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <p>
+      <strong>Two dependencies are imported nowhere and look droppable.</strong>
+      <code>cryptography</code> is required because CDISC ships
+      <code>USDM-IG.pdf</code> AES-encrypted and <code>pypdf</code> cannot open it
+      without the library; <code>python-multipart</code> is required for FastAPI
+      to accept the protocol upload in the web UI. Removing either breaks the
+      tool in a way that only shows up at run time.
+    </p>
+  </div>
+
+  <h3>What is already in the repository</h3>
+  <p class="prose">
+    The reference data is checked in, so a new machine needs no downloads. All of
+    it came from the CDISC
+    <a href="https://github.com/cdisc-org/DDF-RA">DDF-RA</a> repository and the
+    NCI EVS terminology service.
+  </p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Resource</th><th>What it is</th><th>Used for</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">usdm/v4/USDM_API.json</td><td>OpenAPI 3.1 schema, 81 entities</td><td>Entity shape, required fields, validation</td></tr>
+        <tr><td class="mono">usdm/v4/USDM_CT.xlsx</td><td>DDF terminology &mdash; 25 codelists</td><td>Coded values, plus a prose definition for every attribute</td></tr>
+        <tr><td class="mono">usdm/v4/ct_supplement.json</td><td>Derived &mdash; 17 more codelists from NCI EVS</td><td>The attributes the DDF workbook omits</td></tr>
+        <tr><td class="mono">usdm_ig/USDM-IG.pdf</td><td>Implementation Guide, 119 pages</td><td>Sliced into 32 per-entity excerpts</td></tr>
+        <tr><td class="mono">reference_studies/lzzt/</td><td>CDISC pilot study, known-good USDM v4</td><td>Regression baseline for the validator</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="prose">
+    Regenerate the two derived artefacts with
+    <code>python -m protocol_to_edc.usdm.build_ct</code> and
+    <code>python -m protocol_to_edc.usdm.slice_ig</code>. Neither is needed for a
+    normal install.
+  </p>
+</section>
+
+<!-- ============================ RUNNING ============================ -->
+<section id="running">
+  <h2><span class="num">02</span>Running a study</h2>
+  <p class="prose lede">
+    Two front doors onto the same engine. The terminal and the browser both call
+    <code>orchestrator.execute</code>; neither reimplements the other. The only
+    difference is that the web upload writes <code>study.yaml</code> for you.
+  </p>
+
+  <div class="lanes">
+
+    <div class="lane">
+      <h3>Terminal <span class="tag">CLI</span></h3>
+      <pre><code><span class="c"># 1. scaffold the study folder</span>
+pte new I8R-MC-ABCD
+
+<span class="c"># 2. copy the protocol PDF into</span>
+<span class="c">#    studies\I8R-MC-ABCD\input\protocol\</span>
+
+<span class="c"># 3. point study.yaml at the file</span>
+<span class="c">#    input:</span>
+<span class="c">#      protocol_pdf: "input/protocol/Prot.pdf"</span>
+
+<span class="c"># 4. verify — spends nothing</span>
+pte check I8R-MC-ABCD
+
+<span class="c"># 5. run</span>
+pte build I8R-MC-ABCD</code></pre>
+      <p style="font-size:14.5px;color:var(--ink-soft);margin-bottom:0">
+        <code>python run_build.py I8R-MC-ABCD</code> is the same thing without
+        installing the package.
+      </p>
+    </div>
+
+    <div class="lane">
+      <h3>Browser <span class="tag">Web UI</span></h3>
+      <pre><code>python run_web.py
+<span class="c"># http://127.0.0.1:8000</span></code></pre>
+      <ol style="padding-left:20px;margin:14px 0 0;font-size:14.5px;line-height:1.75">
+        <li><strong>Study</strong> &mdash; type an id, click Create</li>
+        <li><strong>Upload</strong> the PDF &mdash; this also rewrites
+            <code>study.yaml</code>, so step 3 opposite does not exist here. It
+            reports pages, characters and whether the text layer is usable.</li>
+        <li><strong>Configure</strong> &mdash; USDM version, output mode, effort,
+            and the eight agent toggles</li>
+        <li><strong>Build USDM</strong> &mdash; live per-agent progress over SSE</li>
+        <li><strong>Results</strong> &mdash; gap report, document, validation,
+            per-agent fragments</li>
+      </ol>
+    </div>
+
+  </div>
+
+  <h3>Every command</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Command</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">pte studies</td><td>List studies and whether each is ready to build</td></tr>
+        <tr><td class="mono">pte domains -v</td><td>List the agents, their entities, skills, codelists and execution levels</td></tr>
+        <tr><td class="mono">pte new &lt;ID&gt;</td><td>Scaffold <code>studies/&lt;ID&gt;/</code> from the template</td></tr>
+        <tr><td class="mono">pte check &lt;ID&gt;</td><td>Pre-flight: key, schema, terminology, IG excerpts, PDF text layer, all 8 modules. No API calls.</td></tr>
+        <tr><td class="mono">pte build &lt;ID&gt;</td><td>Run the pipeline</td></tr>
+        <tr><td class="mono">pte web</td><td>Start the browser UI</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Useful build flags</h4>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">--domains epoch,study_arm</td><td>Run only these; the rest are disabled and cost nothing</td></tr>
+        <tr><td class="mono">--refresh epoch</td><td>Re-run one agent, ignoring its cached response</td></tr>
+        <tr><td class="mono">--no-cache</td><td>Ignore every cached response</td></tr>
+        <tr><td class="mono">--output-mode stub</td><td><code>partial</code> (default), <code>strict</code> or <code>stub</code> &mdash; see below</td></tr>
+        <tr><td class="mono">--effort low|medium|high|xhigh|max</td><td>Thinking depth; default <code>high</code></td></tr>
+        <tr><td class="mono">--json</td><td>Emit progress events as JSON lines, for scripting</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p>
+      <strong>Start narrow on an unfamiliar protocol.</strong> Run
+      <code>--domains study,study_design</code> first, read the gap report, then
+      run the rest. Responses are cached on disk by model, effort, prompt, schema
+      and PDF digest, so the second command reuses those two agents for free.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ HOW IT WORKS ============================ -->
+<section id="how">
+  <h2><span class="num">03</span>How it works</h2>
+
+  <div class="prose">
+    <p class="lede">
+      One principle runs through the whole design, and most of the surprising
+      decisions follow from it.
+    </p>
+    <p style="font-family:var(--serif);font-size:20px;line-height:1.45;color:var(--ink);margin:22px 0 18px">
+      The model makes judgments. Code makes artifacts.
+    </p>
+    <p>
+      An agent decides what an epoch <em>is</em>, which arm a visit belongs to,
+      whether a design is crossover or parallel. Python writes the JSON, mints
+      the identifiers, derives the arm&nbsp;&times;&nbsp;epoch grid, resolves the
+      terminology and validates the result. Nothing a model returns reaches the
+      document without passing through a schema.
+    </p>
+  </div>
+
+  <h3>Four consequences worth knowing</h3>
+  <dl class="defs">
+    <div>
+      <dt>No invented codes</dt>
+      <dd>
+        An agent is shown the permitted values for a coded field and picks one
+        <strong>by its wording</strong>. Python turns that choice into a
+        <code>Code</code> object with the real C-code. A term matching nothing
+        becomes a sponsor-defined value and lands in the gap report &mdash; it
+        cannot become a plausible-looking but fictitious <code>C99999</code>.
+      </dd>
+    </div>
+    <div>
+      <dt>Quotes are checked</dt>
+      <dd>
+        Every extracted value carries the protocol text it came from and a page
+        number. Each quote is then searched for in the PDF's own text layer. In
+        the observed run <strong>70 of 77 verified</strong>; the seven that did
+        not are named in the gap report as reworded, page-shifted or too short to
+        test.
+      </dd>
+    </div>
+    <div>
+      <dt>Ids are placeholders until assembly</dt>
+      <dd>
+        Agents emit <code>@StudyEpoch:screening</code>. The assembler mints
+        <code>StudyEpoch_1</code> and rewrites every reference to it. A reference
+        to something no enabled agent produced <strong>cannot</strong> be written
+        as a valid-looking id &mdash; it is reported as dangling.
+      </dd>
+    </div>
+    <div>
+      <dt>Two entities have no agent</dt>
+      <dd>
+        <code>StudyCell</code> (the arm&nbsp;&times;&nbsp;epoch grid) and
+        <code>StudyElement</code> are joins over other agents' output, not
+        readings of the protocol. They are derived in code. In the observed run
+        that was <strong>10 cells from 2 arms and 5 epochs</strong>.
+      </dd>
+    </div>
+  </dl>
+
+  <h3>The eight agents</h3>
+  <p class="prose">
+    Each is a manifest in <code>config/domains/</code> plus a package under
+    <code>src/protocol_to_edc/domains/</code> holding its output schema, its
+    prompt builder, its USDM mapping and its <code>skill.md</code>.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Agent</th><th>USDM v4 entities</th>
+          <th class="num">IG</th><th class="num">Codelists</th><th class="num">Skill</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">1</td><td class="mono">study</td><td>Study, StudyVersion, StudyTitle, StudyIdentifier, Organization</td><td class="num">4</td><td class="num">2 / 14</td><td class="num">1.6 KB</td></tr>
+        <tr><td class="mono">2</td><td class="mono">study_design</td><td>InterventionalStudyDesign &mdash; type, model, phase, blinding</td><td class="num">4</td><td class="num">7 / 82</td><td class="num">1.7 KB</td></tr>
+        <tr><td class="mono">3</td><td class="mono">study_arm</td><td>StudyArm</td><td class="num">3</td><td class="num">2 / 11</td><td class="num">1.4 KB</td></tr>
+        <tr><td class="mono">4</td><td class="mono">epoch</td><td>StudyEpoch</td><td class="num">3</td><td class="num">1 / 15</td><td class="num">1.4 KB</td></tr>
+        <tr><td class="mono">5</td><td class="mono">study_intervention</td><td>StudyIntervention, Administration, Quantity</td><td class="num">4</td><td class="num">5 / 1216</td><td class="num">1.5 KB</td></tr>
+        <tr><td class="mono">6</td><td class="mono">study_objective</td><td>Objective, Endpoint</td><td class="num">3</td><td class="num">2 / 6</td><td class="num">1.5 KB</td></tr>
+        <tr><td class="mono">7</td><td class="mono">population_eligibility</td><td>StudyDesignPopulation, StudyCohort, EligibilityCriterion, EligibilityCriterionItem</td><td class="num">5</td><td class="num">2 / 5</td><td class="num">1.5 KB</td></tr>
+        <tr><td class="mono">8</td><td class="mono">activity_schedule</td><td>Activity, Encounter, ScheduleTimeline, ScheduledActivityInstance, Timing</td><td class="num">6</td><td class="num">5 / 18</td><td class="num">2.1 KB</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="prose" style="font-size:14px;color:var(--ink-soft)">
+    <b>IG</b> &mdash; Implementation Guide excerpts loaded into that agent's prompt.
+    <b>Codelists</b> &mdash; codelists offered / total permitted terms across them.
+    <b>Skill</b> &mdash; size of the hand-written domain knowledge file.
+  </p>
+
+  <div class="note">
+    <p>
+      <strong>The entity names in a statement of work rarely match USDM v4.</strong>
+      There is no <code>StudyDesign</code> class &mdash; there is
+      <code>InterventionalStudyDesign</code> and
+      <code>ObservationalStudyDesign</code>, with different required fields. There
+      is no <code>StudyObjective</code> &mdash; objectives are
+      <code>Objective</code>. Titles and identifiers hang off
+      <code>StudyVersion</code>, not <code>Study</code>. Eligibility is split:
+      the criterion <em>text</em> lives on the study version, the criterion's
+      <em>role</em> on the design.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ FLOW ============================ -->
+<section id="flow">
+  <h2><span class="num">04</span>End-to-end flow</h2>
+  <p class="prose lede">
+    Everything a run touches, in order. The teal path is the protocol itself:
+    uploaded once, cached once, then read back by seven agents.
+  </p>
+
+  <figure>
+    <div class="figframe">
+      <svg viewBox="0 0 1200 792" role="img"
+           aria-label="End-to-end pipeline: inputs and reference resources feed eight domain agents across two concurrency levels, whose fragments are assembled deterministically into a validated USDM document and four review reports.">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="d-arrow"/>
+          </marker>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="d-arrow-acc"/>
+          </marker>
+        </defs>
+
+        <!-- ================= BAND 1 : INPUTS ================= -->
+        <text x="0" y="14" class="d-band-lab">1 · INPUTS — PER STUDY AND GLOBAL</text>
+
+        <rect x="0"   y="26" width="272" height="58" rx="3" class="d-box-acc"/>
+        <text x="14"  y="48" class="d-title">protocol.pdf</text>
+        <text x="14"  y="66" class="d-sub">studies/&lt;ID&gt;/input/protocol/</text>
+
+        <rect x="292" y="26" width="272" height="58" rx="3" class="d-box"/>
+        <text x="306" y="48" class="d-title">study.yaml + default.yaml</text>
+        <text x="306" y="66" class="d-sub">version · mode · toggles · effort</text>
+
+        <rect x="584" y="26" width="240" height="58" rx="3" class="d-box"/>
+        <text x="598" y="48" class="d-title">.env</text>
+        <text x="598" y="66" class="d-sub">ANTHROPIC_API_KEY</text>
+
+        <rect x="844" y="26" width="356" height="58" rx="3" class="d-box"/>
+        <text x="858" y="48" class="d-title">config/domains/*.yaml</text>
+        <text x="858" y="66" class="d-sub">8 manifests — the plugin registry</text>
+
+        <!-- ================= BAND 2 : PREFLIGHT ================= -->
+        <text x="0" y="118" class="d-band-lab">2 · PRE-FLIGHT — NO MODEL INVOLVED</text>
+
+        <line x1="136" y1="84" x2="136" y2="124" class="d-line-acc" marker-end="url(#a2)"/>
+        <line x1="428" y1="84" x2="428" y2="124" class="d-line" marker-end="url(#a1)"/>
+        <line x1="704" y1="84" x2="704" y2="124" class="d-line" marker-end="url(#a1)"/>
+        <line x1="1022" y1="84" x2="1022" y2="124" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="0"   y="128" width="272" height="58" rx="3" class="d-box-acc"/>
+        <text x="14"  y="150" class="d-title">ProtocolText · pypdf</text>
+        <text x="14"  y="168" class="d-sub">text-layer check · page index</text>
+
+        <rect x="292" y="128" width="272" height="58" rx="3" class="d-box"/>
+        <text x="306" y="150" class="d-title">config.load()</text>
+        <text x="306" y="168" class="d-sub">3 layers merged, validated</text>
+
+        <rect x="584" y="128" width="240" height="58" rx="3" class="d-box"/>
+        <text x="598" y="150" class="d-title">files.upload()</text>
+        <text x="598" y="168" class="d-sub">→ file_id · once per PDF</text>
+
+        <rect x="844" y="128" width="356" height="58" rx="3" class="d-box"/>
+        <text x="858" y="150" class="d-title">registry.load_all()</text>
+        <text x="858" y="168" class="d-sub">dependency graph → 2 levels</text>
+
+        <!-- ================= BAND 3 : PROMPT MATERIAL ================= -->
+        <text x="0" y="220" class="d-band-lab">3 · PROMPT MATERIAL — ASSEMBLED PER AGENT</text>
+
+        <rect x="0" y="230" width="1200" height="64" rx="3" class="d-box-sunk"/>
+        <text x="16"  y="252" class="d-title">System prompt</text>
+        <text x="16"  y="270" class="d-sub">identical for all 8</text>
+        <text x="16"  y="284" class="d-sub">→ cacheable prefix</text>
+
+        <line x1="228" y1="238" x2="228" y2="286" class="d-line"/>
+        <text x="244" y="252" class="d-title">IG excerpts</text>
+        <text x="244" y="270" class="d-sub">usdm_ig/sections/*.md</text>
+        <text x="244" y="284" class="d-sub">32 entity slices</text>
+
+        <line x1="466" y1="238" x2="466" y2="286" class="d-line"/>
+        <text x="482" y="252" class="d-title">Schema slice</text>
+        <text x="482" y="270" class="d-sub">USDM_API.json</text>
+        <text x="482" y="284" class="d-sub">required fields + types</text>
+
+        <line x1="712" y1="238" x2="712" y2="286" class="d-line"/>
+        <text x="728" y="252" class="d-title">Codelists</text>
+        <text x="728" y="270" class="d-sub">USDM_CT + ct_supplement</text>
+        <text x="728" y="284" class="d-sub">42 lists · decodes only</text>
+
+        <line x1="958" y1="238" x2="958" y2="286" class="d-line"/>
+        <text x="974" y="252" class="d-title">skill.md</text>
+        <text x="974" y="270" class="d-sub">hand-written, one per agent</text>
+        <text x="974" y="284" class="d-sub">how to read this domain</text>
+
+        <!-- ================= BAND 4 : AGENTS ================= -->
+        <text x="0" y="326" class="d-band-lab">4 · AGENTS — LEVEL 1, CONCURRENT</text>
+        <text x="1200" y="326" class="d-acc-lab" text-anchor="end">EPOCH RUNS FIRST TO PRIME THE CACHE</text>
+
+        <line x1="600" y1="294" x2="600" y2="334" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="0"    y="340" width="164" height="92" rx="3" class="d-box-acc"/>
+        <text x="12"   y="362" class="d-title">epoch</text>
+        <text x="12"   y="380" class="d-sub">StudyEpoch</text>
+        <text x="12"   y="410" class="d-sub">writes cache</text>
+        <text x="12"   y="424" class="d-sub">168K tokens</text>
+
+        <rect x="177"  y="340" width="164" height="92" rx="3" class="d-box"/>
+        <text x="189"  y="362" class="d-title">study</text>
+        <text x="189"  y="380" class="d-sub">Study</text>
+        <text x="189"  y="394" class="d-sub">StudyVersion</text>
+        <text x="189"  y="408" class="d-sub">StudyTitle</text>
+        <text x="189"  y="422" class="d-sub">Organization</text>
+
+        <rect x="354"  y="340" width="164" height="92" rx="3" class="d-box"/>
+        <text x="366"  y="362" class="d-title">study_design</text>
+        <text x="366"  y="380" class="d-sub">Interventional-</text>
+        <text x="366"  y="394" class="d-sub">StudyDesign</text>
+        <text x="366"  y="415" class="d-sub">phase · blinding</text>
+
+        <rect x="531"  y="340" width="164" height="92" rx="3" class="d-box"/>
+        <text x="543"  y="362" class="d-title">study_arm</text>
+        <text x="543"  y="380" class="d-sub">StudyArm</text>
+        <text x="543"  y="408" class="d-sub">sequences, not</text>
+        <text x="543"  y="422" class="d-sub">treatments</text>
+
+        <rect x="708"  y="340" width="164" height="92" rx="3" class="d-box"/>
+        <text x="720"  y="362" class="d-title">study_</text>
+        <text x="720"  y="376" class="d-title">intervention</text>
+        <text x="720"  y="396" class="d-sub">StudyIntervention</text>
+        <text x="720"  y="410" class="d-sub">Administration</text>
+        <text x="720"  y="424" class="d-sub">Quantity</text>
+
+        <rect x="885"  y="340" width="164" height="92" rx="3" class="d-box"/>
+        <text x="897"  y="362" class="d-title">study_objective</text>
+        <text x="897"  y="380" class="d-sub">Objective</text>
+        <text x="897"  y="394" class="d-sub">Endpoint</text>
+        <text x="897"  y="415" class="d-sub">paired as printed</text>
+
+        <rect x="1062" y="340" width="138" height="92" rx="3" class="d-box"/>
+        <text x="1074" y="362" class="d-title">population_</text>
+        <text x="1074" y="376" class="d-title">eligibility</text>
+        <text x="1074" y="396" class="d-sub">Population</text>
+        <text x="1074" y="410" class="d-sub">Eligibility-</text>
+        <text x="1074" y="424" class="d-sub">Criterion</text>
+
+        <!-- cache read arrows -->
+        <path d="M82 432 L82 452 L1131 452 L1131 432" class="d-line-acc"/>
+        <text x="600" y="470" class="d-acc-lab" text-anchor="middle">6 AGENTS READ THE PROTOCOL FROM CACHE — 93% HIT</text>
+
+        <!-- level 2 -->
+        <text x="0" y="506" class="d-band-lab">4b · LEVEL 2 — WAITS FOR EPOCHS AND ARMS</text>
+        <line x1="600" y1="476" x2="600" y2="514" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="0" y="518" width="400" height="62" rx="3" class="d-box"/>
+        <text x="14" y="540" class="d-title">activity_schedule</text>
+        <text x="14" y="558" class="d-sub">Activity · Encounter · ScheduleTimeline</text>
+        <text x="14" y="572" class="d-sub">ScheduledActivityInstance · Timing</text>
+
+        <text x="420" y="540" class="d-sub">Reads the Schedule of Activities grid. Needs the epoch and arm</text>
+        <text x="420" y="556" class="d-sub">names from level 1 so each visit attaches to the right epoch</text>
+        <text x="420" y="572" class="d-sub">rather than being guessed at.</text>
+
+        <!-- ================= BAND 5 : DETERMINISTIC ================= -->
+        <text x="0" y="612" class="d-band-lab">5 · DETERMINISTIC ASSEMBLY — NO MODEL INVOLVED</text>
+        <line x1="200" y1="580" x2="200" y2="620" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="0"   y="624" width="228" height="66" rx="3" class="d-box"/>
+        <text x="12"  y="646" class="d-title">to_usdm() × 8</text>
+        <text x="12"  y="664" class="d-sub">fragments/&lt;domain&gt;.json</text>
+        <text x="12"  y="678" class="d-sub">decodes → real C-codes</text>
+
+        <line x1="228" y1="657" x2="252" y2="657" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="256" y="624" width="216" height="66" rx="3" class="d-box"/>
+        <text x="268" y="646" class="d-title">joins.py</text>
+        <text x="268" y="664" class="d-sub">StudyCell = arms × epochs</text>
+        <text x="268" y="678" class="d-sub">StudyElement per arm</text>
+
+        <line x1="472" y1="657" x2="496" y2="657" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="500" y="624" width="216" height="66" rx="3" class="d-box"/>
+        <text x="512" y="646" class="d-title">ids.resolve()</text>
+        <text x="512" y="664" class="d-sub">@StudyEpoch:screening</text>
+        <text x="512" y="678" class="d-sub">→ StudyEpoch_1</text>
+
+        <line x1="716" y1="657" x2="740" y2="657" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="744" y="624" width="216" height="66" rx="3" class="d-box"/>
+        <text x="756" y="646" class="d-title">validator.py</text>
+        <text x="756" y="664" class="d-sub">schema · references</text>
+        <text x="756" y="678" class="d-sub">· terminology</text>
+
+        <line x1="960" y1="657" x2="984" y2="657" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="988" y="624" width="212" height="66" rx="3" class="d-box-acc"/>
+        <text x="1000" y="646" class="d-title">provenance.py</text>
+        <text x="1000" y="664" class="d-sub">each quote searched</text>
+        <text x="1000" y="678" class="d-sub">in the PDF text</text>
+
+        <!-- ================= BAND 6 : OUTPUTS ================= -->
+        <text x="0" y="722" class="d-band-lab">6 · OUTPUTS — studies/&lt;ID&gt;/output/</text>
+        <line x1="600" y1="690" x2="600" y2="730" class="d-line" marker-end="url(#a1)"/>
+
+        <rect x="0"   y="734" width="228" height="52" rx="3" class="d-box"/>
+        <text x="12"  y="756" class="d-title">&lt;ID&gt;_usdm.json</text>
+        <text x="12"  y="774" class="d-sub">the document</text>
+
+        <rect x="243" y="734" width="228" height="52" rx="3" class="d-box"/>
+        <text x="255" y="756" class="d-title">fragments/</text>
+        <text x="255" y="774" class="d-sub">per agent, reviewable alone</text>
+
+        <rect x="486" y="734" width="228" height="52" rx="3" class="d-box-acc"/>
+        <text x="498" y="756" class="d-title">gap_report.md</text>
+        <text x="498" y="774" class="d-sub">read this first</text>
+
+        <rect x="729" y="734" width="228" height="52" rx="3" class="d-box"/>
+        <text x="741" y="756" class="d-title">provenance.csv</text>
+        <text x="741" y="774" class="d-sub">value → protocol page</text>
+
+        <rect x="972" y="734" width="228" height="52" rx="3" class="d-box"/>
+        <text x="984" y="756" class="d-title">validation · run_summary</text>
+        <text x="984" y="774" class="d-sub">findings · tokens · timings</text>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Figure 1 — the full pipeline.</b> Bands 1, 2, 5 and 6 involve no model at
+      all; only band 4 calls the API. The teal path follows the protocol: read
+      locally for quote verification, uploaded once to the Files API, written to
+      the prompt cache by the first agent, then read back by the other six. The
+      last teal box closes the loop by checking every quote back against the text
+      extracted in band 2.
+    </figcaption>
+  </figure>
+
+  <h3>What one agent call contains</h3>
+
+  <figure>
+    <div class="figframe">
+      <svg viewBox="0 0 1000 424" role="img"
+           aria-label="Anatomy of one agent request: a cached prefix of system prompt and protocol document, followed by a per-agent instruction, returning a schema-validated object whose every item carries confidence and a quote.">
+        <defs>
+          <marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="d-arrow"/>
+          </marker>
+        </defs>
+
+        <text x="0" y="14" class="d-acc-lab">CACHED PREFIX — WRITTEN ONCE, READ BY EVERY LATER AGENT</text>
+        <rect x="0" y="24" width="470" height="116" rx="3" class="d-box-acc"/>
+        <text x="14" y="48" class="d-title">system prompt</text>
+        <text x="14" y="66" class="d-sub">byte-identical across all 8 agents</text>
+        <line x1="14" y1="80" x2="456" y2="80" class="d-line"/>
+        <text x="14" y="102" class="d-title">document block → file_id</text>
+        <text x="14" y="120" class="d-sub">the 73-page protocol · ~168,000 tokens</text>
+        <text x="14" y="134" class="d-sub">cache_control: ephemeral, ttl 1h</text>
+
+        <text x="0" y="176" class="d-band-lab">PER-AGENT INSTRUCTION — VARIES, SO IT COMES AFTER THE BREAKPOINT</text>
+        <rect x="0" y="186" width="470" height="212" rx="3" class="d-box"/>
+        <text x="14" y="210" class="d-title">task</text>
+        <text x="14" y="226" class="d-sub">what to extract, in this domain's terms</text>
+        <text x="14" y="248" class="d-title">where to look</text>
+        <text x="14" y="264" class="d-sub">protocol_hints from the manifest</text>
+        <text x="14" y="286" class="d-title">entity definitions + schema slice</text>
+        <text x="14" y="302" class="d-sub">USDM_CT prose · USDM_API.json shape</text>
+        <text x="14" y="324" class="d-title">permitted values</text>
+        <text x="14" y="340" class="d-sub">decodes only — never the C-codes</text>
+        <text x="14" y="362" class="d-title">IG excerpt + skill.md</text>
+        <text x="14" y="378" class="d-sub">standard guidance + domain know-how</text>
+
+        <line x1="470" y1="212" x2="540" y2="212" class="d-line" marker-end="url(#b1)"/>
+        <text x="505" y="204" class="d-edge-lab" text-anchor="middle">call</text>
+
+        <rect x="544" y="24" width="456" height="150" rx="3" class="d-box-sunk"/>
+        <text x="558" y="48" class="d-title">Structured output</text>
+        <text x="558" y="68" class="d-sub">output_format = the domain's pydantic model</text>
+        <text x="558" y="86" class="d-sub">thinking: adaptive · effort: high · streamed</text>
+        <text x="558" y="112" class="d-sub">A response that does not match the schema</text>
+        <text x="558" y="128" class="d-sub">fails here, not later as odd USDM.</text>
+        <text x="558" y="154" class="d-sub">Result cached on disk by prompt + schema</text>
+        <text x="558" y="168" class="d-sub">+ model + effort + PDF digest.</text>
+
+        <line x1="772" y1="174" x2="772" y2="206" class="d-line" marker-end="url(#b1)"/>
+
+        <rect x="544" y="210" width="456" height="188" rx="3" class="d-box"/>
+        <text x="558" y="234" class="d-title">items[]</text>
+        <text x="558" y="252" class="d-sub">the extracted entities</text>
+        <text x="572" y="274" class="d-sub">· confidence — required, 0.0–1.0</text>
+        <text x="572" y="290" class="d-sub">· evidence[] — required: page + verbatim quote</text>
+        <line x1="558" y1="306" x2="986" y2="306" class="d-line"/>
+        <text x="558" y="328" class="d-title">gaps[]</text>
+        <text x="558" y="346" class="d-sub">what the protocol does not settle —</text>
+        <text x="558" y="360" class="d-sub">reported rather than guessed at</text>
+        <text x="558" y="384" class="d-sub">Both fields are required on purpose.</text>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Figure 2 — anatomy of one call.</b> The cache breakpoint sits after the
+      document because caching is a prefix match: everything stable goes first,
+      everything that varies per agent goes after. <b>Confidence and evidence are
+      required fields, not optional ones</b> &mdash; when they carried defaults, the
+      first run returned confidence scores and not a single quote, leaving nothing
+      to verify.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ============================ OUTPUT ============================ -->
+<section id="output">
+  <h2><span class="num">05</span>What you get back</h2>
+
+  <div class="tree">
+studies/&lt;STUDY_ID&gt;/output/
+  usdm/
+    &lt;STUDY_ID&gt;_usdm.json        <span class="dim">the assembled USDM v4 document</span>
+    fragments/&lt;domain&gt;.json      <span class="dim">each agent's contribution, reviewable alone</span>
+  reports/
+    <span class="hl">gap_report.md</span>               <span class="dim">the reviewer's worklist — start here</span>
+    provenance.csv               <span class="dim">every value → the protocol text it came from</span>
+    validation_report.json       <span class="dim">schema + referential integrity findings</span>
+    run_summary.json             <span class="dim">tokens, cache hits, timings per agent</span>
+  </div>
+
+  <h3>Reading the gap report</h3>
+  <p class="prose">
+    It is ordered by how much each item matters, not by agent, so a reviewer with
+    twenty minutes should spend them at the top.
+  </p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Section</th><th>What it holds</th><th>Urgency</th></tr></thead>
+      <tbody>
+        <tr><td>1 &mdash; Structural errors</td><td>Schema violations, references pointing at nothing</td><td>The only items that make the output unusable</td></tr>
+        <tr><td>2 &mdash; Unverified quotes</td><td>Text the agent quoted that is not in the PDF as quoted</td><td><code>not-found</code> first &mdash; the value may not exist</td></tr>
+        <tr><td>3 &mdash; Low confidence</td><td>Values the agent flagged itself, below the threshold</td><td>Usually genuine protocol ambiguity</td></tr>
+        <tr><td>4 &mdash; Agent-reported gaps</td><td>What the protocol does not settle</td><td>Needs someone who can consult the sponsor</td></tr>
+        <tr><td>5 &mdash; Missing required content</td><td>USDM-required properties absent because an agent was off</td><td>Expected when you disabled agents</td></tr>
+        <tr><td>6 &mdash; Sponsor-defined values</td><td>No published codelist matched the wording</td><td>Sometimes correct, sometimes the wrong codelist</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Output modes</h3>
+  <p class="prose">
+    Turning an agent off removes properties that USDM marks <em>required</em>, so
+    an incomplete document is a normal state, not an error. The mode decides what
+    happens next.
+  </p>
+  <dl class="defs">
+    <div>
+      <dt>partial <span style="color:var(--ink-soft);font-family:var(--sans)">(default)</span></dt>
+      <dd>Emit what exists and report what is missing. What a statement of work
+          usually means by "partial USDM output".</dd>
+    </div>
+    <div>
+      <dt>strict</dt>
+      <dd>Refuse to assemble. Use when the document has to be conformant and you
+          would rather fail loudly than ship a gap.</dd>
+    </div>
+    <div>
+      <dt>stub</dt>
+      <dd>Insert minimal placeholders so the document validates, and list every
+          one in the gap report. Use when a downstream consumer needs a loadable
+          file today.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ============================ GOTCHAS ============================ -->
+<section id="know">
+  <h2><span class="num">06</span>Things worth knowing before you run it</h2>
+
+  <div class="note crit">
+    <p>
+      <strong>Study ids must be plain ASCII.</strong> A hyphen copied from Word or
+      a PDF is usually U+2011, a non-breaking hyphen that looks identical to a
+      normal one and breaks Windows path handling. The tool rejects it at creation
+      with the exact position, rather than letting it fail later:
+    </p>
+    <pre style="margin-bottom:0"><code>Study id 'I8R‑JE‑IGBJ' contains non-ASCII characters:
+  position 3 '‑' (U+2011), position 6 '‑' (U+2011).
+Use plain ASCII hyphens (U+002D), e.g. 'I8R-JE-IGBJ'.</code></pre>
+  </div>
+
+  <div class="note warn">
+    <p>
+      <strong>Text-layer PDFs only.</strong> There is no OCR. A scanned protocol
+      is refused at <code>pte check</code> with its character count, and the web
+      upload says so before you waste a run on it.
+    </p>
+  </div>
+
+  <h3>Cost and caching</h3>
+  <p class="prose">
+    Two different caches, solving different problems. Understanding which is which
+    explains most of what you will see in <code>run_summary.json</code>.
+  </p>
+  <dl class="defs">
+    <div>
+      <dt>Prompt cache</dt>
+      <dd>
+        Anthropic's, 1-hour TTL. Keeps the protocol resident server-side so
+        agents after the first read it at a fraction of the input price. This is
+        why <strong>one agent deliberately runs before the others</strong> &mdash;
+        launched together, all seven miss the cache and each pays to write it. In
+        testing that difference was a <strong>0% hit rate against 93%</strong>.
+      </dd>
+    </div>
+    <div>
+      <dt>Response cache</dt>
+      <dd>
+        On disk, in <code>.cache/</code>, keyed by model, effort, prompt, schema
+        and PDF digest. Saves the whole call on a <em>re-run</em>. Change one
+        agent's prompt and re-run, and you do not re-pay for the other seven.
+        <code>--refresh &lt;domain&gt;</code> drops one; <code>--no-cache</code>
+        drops all.
+      </dd>
+    </div>
+  </dl>
+
+  <h3>Adding a ninth domain</h3>
+  <p class="prose">
+    Two files. Nothing else changes &mdash; the orchestrator, the assembler, the
+    CLI and the web UI all read the registry, and none of them names a domain.
+  </p>
+  <pre><code>config/domains/09_your_domain.yaml        <span class="c"># manifest</span>
+src/protocol_to_edc/domains/your_domain/
+    domain.py   <span class="c"># PAYLOAD_MODEL, build_prompt(), to_usdm()</span>
+    skill.md    <span class="c"># how to read this domain in a protocol</span></code></pre>
+  <p class="prose">
+    The agent then appears in <code>pte domains</code>, as a toggle in the web UI,
+    and in the dependency graph, without a line changing anywhere else.
+  </p>
+
+  <h3>Limits to be honest about</h3>
+  <dl class="defs">
+    <div>
+      <dt>Schema complexity</dt>
+      <dd>
+        The structured-outputs API rejects deeply nested schemas and several
+        JSON-Schema keywords &mdash; <code>minimum</code>, <code>maximum</code>,
+        <code>pattern</code> and others &mdash; at request time, after a run has
+        started. <code>tests/test_domain_schemas.py</code> catches them for all
+        eight agents beforehand. Keep constraints in pydantic validators, not in
+        the schema.
+      </dd>
+    </div>
+    <div>
+      <dt>CORE rules</dt>
+      <dd>
+        Validation is JSON-schema plus referential integrity. CDISC's CORE
+        conformance rules are <strong>not</strong> implemented; that would be a
+        third layer in <code>usdm/validator.py</code>.
+      </dd>
+    </div>
+    <div>
+      <dt>Visit timings</dt>
+      <dd>
+        In the observed run only 3 of 8 visits received ISO 8601 timings. The
+        agent declined to compute offsets it could not justify and logged gaps
+        instead. That is the designed behaviour, and it is the first thing to
+        tune if you want fuller schedules.
+      </dd>
+    </div>
+    <div>
+      <dt>Scope</dt>
+      <dd>
+        Stops at USDM. The Architect Loader Specification and the Rave load, edit
+        checks, derivations and dynamics are out. The structure anticipates that
+        phase &mdash; it consumes the USDM document rather than changing it.
+      </dd>
+    </div>
+  </dl>
+
+  <h3>If something goes wrong</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Symptom</th><th>Cause and fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono">ANTHROPIC_API_KEY is not set</td>
+          <td>No <code>.env</code> at the project root, or the key line is blank. <code>pte check</code> reports it before any spend.</td>
+        </tr>
+        <tr>
+          <td class="mono">Protocol PDF not found</td>
+          <td><code>input.protocol_pdf</code> in <code>study.yaml</code> does not match the filename. The web upload sets this for you.</td>
+        </tr>
+        <tr>
+          <td class="mono">has no usable text layer</td>
+          <td>Scanned PDF. Out of scope &mdash; run OCR elsewhere first.</td>
+        </tr>
+        <tr>
+          <td class="mono">Schema is too complex</td>
+          <td>An agent's output model nests too deeply. Flatten it; size is not the limit, structure is.</td>
+        </tr>
+        <tr>
+          <td class="mono">did not parse as …</td>
+          <td>The response was cut off at the token ceiling mid-value. Raise <code>DEFAULT_MAX_TOKENS</code> for that domain.</td>
+        </tr>
+        <tr>
+          <td class="mono">unresolved-placeholder</td>
+          <td>Something referenced an entity no enabled agent produced. Usually correct &mdash; you disabled that agent.</td>
+        </tr>
+        <tr>
+          <td class="mono">cacheHitRatio near 0</td>
+          <td>A silent cache invalidator, or agents launched without the priming step. Check <code>run_summary.json</code> per agent.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Protocol to USDM &middot; CDISC USDM v4.0.0 &middot; reference data from the
+    CDISC DDF-RA repository and NCI EVS. Figures reflect one observed run on a
+    73-page Phase 3 protocol; your protocol will differ.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

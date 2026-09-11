@@ -8,6 +8,10 @@ output is validated against the published USDM schema, assembled into one
 document, and accompanied by a gap report listing everything a human needs to
 decide. It is an accelerator with a reviewer, not an autopilot.
 
+**New here?** Open [`docs/operator-guide.html`](docs/operator-guide.html) in a
+browser. It covers setup, running, the agents, and the end-to-end flow as two
+diagrams. This README is the quick reference; that is the walkthrough.
+
 ---
 
 ## What it produces
