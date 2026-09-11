@@ -1,0 +1,10 @@
+# Development dependencies: everything in requirements.txt, plus the test runner.
+#
+#     python -m pip install -r requirements-dev.txt
+#
+# The test suite runs without an API key and without network access.
+
+-r requirements.txt
+
+pytest>=8.3
+pytest-asyncio>=0.24

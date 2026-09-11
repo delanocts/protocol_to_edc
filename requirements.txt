@@ -1,0 +1,39 @@
+# Runtime dependencies.
+#
+#     python -m pip install -r requirements.txt
+#
+# This mirrors [project.dependencies] in pyproject.toml, which stays the source
+# of truth. Installing the project itself (`pip install -e .`) pulls the same
+# set and also gives you the `pte` command; use this file when you only want the
+# libraries, or when a tool expects a requirements file.
+#
+# Python 3.11 or newer. Developed and tested on 3.14.
+#
+# For the exact versions this project is known to work with, use
+# requirements-lock.txt instead.
+
+# --- Claude API -------------------------------------------------------------
+# 1.x only. This code uses the stable `client.files` namespace and
+# `messages.stream(output_format=...)`; the 0.x line has a different surface
+# (httpx rather than httpx2, different beta namespaces) and will not run.
+anthropic>=1.5,<2
+
+# --- Data modelling and validation ------------------------------------------
+pydantic>=2.9             # domain output schemas, configuration
+jsonschema>=4.23          # USDM document validation against USDM_API.json
+pyyaml>=6.0               # config/default.yaml, study.yaml, domain manifests
+
+# --- Document and spreadsheet reading ---------------------------------------
+pypdf>=5.1                # protocol text extraction, IG slicing
+cryptography>=3.1         # not imported directly: pypdf needs it to read the
+                          # USDM Implementation Guide, which is AES-encrypted
+openpyxl>=3.1             # USDM_CT.xlsx controlled terminology
+
+# --- Web UI -----------------------------------------------------------------
+fastapi>=0.115            # the API behind the browser UI
+uvicorn[standard]>=0.32   # the server that runs it
+python-multipart>=0.0.12  # not imported directly: FastAPI needs it to parse
+                          # the protocol PDF upload form
+
+# --- Environment -------------------------------------------------------------
+python-dotenv>=1.0        # reads ANTHROPIC_API_KEY from the project-root .env

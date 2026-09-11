@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Protocol PDF to USDM v4 study definition via a multi-agent Claude pipeline"
 requires-python = ">=3.11"
 dependencies = [
-    "anthropic>=0.69",
+    # 1.x only: this code uses the stable `client.files` namespace and
+    # `messages.stream(output_format=...)`. The 0.x line has a different
+    # surface (httpx rather than httpx2, different beta namespaces).
+    "anthropic>=1.5,<2",
     "pydantic>=2.9",
     "pyyaml>=6.0",
     "jsonschema>=4.23",
@@ -15,8 +18,8 @@ dependencies = [
     "python-dotenv>=1.0",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
+    # Not imported directly; FastAPI needs it to parse the protocol upload form.
     "python-multipart>=0.0.12",
-    "rich>=13.9",
 ]
 
 [project.optional-dependencies]

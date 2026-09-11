@@ -24,10 +24,15 @@ studies/<STUDY_ID>/output/
 
 ## Quick start
 
+Python 3.11 or newer (developed on 3.14).
+
 ```bash
 python -m venv .venv
-.venv/Scripts/python -m pip install -e ".[dev]"     # Windows
-# .venv/bin/python -m pip install -e ".[dev]"       # macOS / Linux
+
+# Windows
+.venv\Scripts\python -m pip install -e ".[dev]"
+# macOS / Linux
+# .venv/bin/python -m pip install -e ".[dev]"
 
 cp .env.example .env          # then put your ANTHROPIC_API_KEY in it
 
@@ -44,6 +49,28 @@ Or through the browser:
 ```bash
 python run_web.py             # http://127.0.0.1:8000
 ```
+
+### Installing on a machine without the project installed
+
+`pip install -e .` is the recommended route — it installs the dependencies *and*
+gives you the `pte` command. If you only want the libraries, or a tool expects a
+requirements file:
+
+| File | Use |
+|---|---|
+| `requirements.txt` | runtime libraries, minimum versions |
+| `requirements-dev.txt` | the above plus pytest |
+| `requirements-lock.txt` | exact versions this project is known to work with |
+
+```bash
+.venv\Scripts\python -m pip install -r requirements.txt
+python run_build.py <STUDY_ID>          # works without installing the package
+```
+
+Two dependencies are not imported anywhere and are easy to drop by mistake:
+`cryptography`, which `pypdf` needs because the USDM Implementation Guide is
+AES-encrypted, and `python-multipart`, which FastAPI needs to accept the protocol
+upload.
 
 The web UI and the CLI call the same `orchestrator.execute`; neither is a
 reimplementation of the other.
